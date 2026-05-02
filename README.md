@@ -72,6 +72,20 @@ Then open:
 http://127.0.0.1:8000
 ```
 
+## Deployment Plan
+
+ESGrow is prepared for free deployment on Render as a Python web service.
+
+For the first public version, the app uses the restored SQLite database in `data/esgrow.db`. This keeps deployment simple and avoids relying on a free hosted database that may expire. The hosted version should be treated as a public dashboard, not as a place to permanently save new data entered by users.
+
+Recommended Render settings:
+
+- Service type: Web Service
+- Runtime: Python
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn api:app --host 0.0.0.0 --port $PORT`
+- Plan: Free
+
 ## Project Principles
 
 - Keep the structure simple.

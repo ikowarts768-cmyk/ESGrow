@@ -1,20 +1,10 @@
-databases:
-  - name: esgrow-db
-    plan: free
-    databaseName: esgrow
-    user: esgrow
-
 services:
   - type: web
     name: esgrow
     runtime: python
-    buildCommand: pip install -r requirements.txt && python -c "from database import init_db; init_db()" && python migrate.py && python batch_import.py data/phase3_wave_a.csv --replace
+    buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: RENDER
         value: "true"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: esgrow-db
-          property: connectionString
     plan: free
