@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ company_name }} · ESGrow</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:      #050d1a;
+      --navy-mid:  #0a1628;
+      --navy-light:#0f2040;
+      --green:     #2ecc8a;
+      --gold:      #c9a84c;
+      --white:     #f0f4f8;
+      --muted:     #7a8fa8;
+      --card:      rgba(255,255,255,0.04);
+      --border:    rgba(255,255,255,0.07);
+    }
+    html { scroll-behavior: smooth; }
+    body { background:var(--navy); color:var(--white); font-family:'Syne',sans-serif; overflow-x:hidden; cursor:none; }
+
+    .page-transition { position:fixed; inset:0; background:var(--green); z-index:9999; transform:scaleY(1); transform-origin:top; pointer-events:none; animation: curtainOut 0.7s 0.1s cubic-bezier(0.77,0,0.18,1) forwards; }
+    @keyframes curtainOut { from{transform:scaleY(1)} to{transform:scaleY(0)} }
+
+    .cursor { width:8px;height:8px;background:var(--green);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;mix-blend-mode:screen; }
+    .cursor-ring { width:32px;height:32px;border:1px solid rgba(46,204,138,0.35);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9997; }
+
+    /* NAV */
+    nav { position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:22px 64px;backdrop-filter:blur(24px);border-bottom:1px solid var(--border);background:rgba(5,13,26,0.9);transition:padding 0.4s; }
+    nav.scrolled { padding:14px 64px; }
+    .nav-logo { font-family:'DM Serif Display',serif;font-size:1.25rem;text-decoration:none;color:var(--white); }
+    .nav-logo span { color:var(--green); }
+    .nav-links { display:flex;gap:36px;list-style:none;align-items:center; }
+    .nav-links a { color:var(--muted);text-decoration:none;font-size:0.75rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;transition:color 0.2s; }
+    .nav-links a:hover { color:var(--white); }
+    .nav-cta { background:var(--green)!important;color:var(--navy)!important;padding:9px 22px;border-radius:2px; }
+    .hamburger { display:none;flex-direction:column;gap:5px;cursor:none;background:none;border:none;padding:4px;z-index:200; }
+    .hamburger span { display:block;width:24px;height:2px;background:var(--white);transition:all 0.3s; }
+    .hamburger.open span:nth-child(1){ transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2){ opacity:0; }
+    .hamburger.open span:nth-child(3){ transform:translateY(-7px) rotate(-45deg); }
+    .mobile-menu { position:fixed;inset:0;background:var(--navy-mid);z-index:150;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:36px;opacity:0;pointer-events:none;transition:opacity 0.3s; }
+    .mobile-menu.open { opacity:1;pointer-events:all; }
+    .mobile-menu a { font-family:'DM Serif Display',serif;font-size:2.2rem;color:var(--white);text-decoration:none;transition:color 0.2s; }
+    .mobile-menu a:hover { color:var(--green); }
+    .mobile-socials { display:flex;gap:24px;margin-top:12px; }
+    .mobile-socials a { font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--muted);text-decoration:none;letter-spacing:0.1em; }
+
+    /* FOOTER */
+    footer { padding:64px;border-top:1px solid var(--border); }
+    .footer-top { display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:48px;margin-bottom:48px; }
+    .footer-brand-name { font-family:'DM Serif Display',serif;font-size:1.4rem;margin-bottom:8px; }
+    .footer-brand-name span { color:var(--green); }
+    .footer-tagline { font-size:0.85rem;color:var(--muted);line-height:1.7;max-width:280px; }
+    .footer-col-label { font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-bottom:16px; }
+    .footer-links { display:flex;flex-direction:column;gap:10px; }
+    .footer-link { font-size:0.85rem;color:var(--muted);text-decoration:none;transition:color 0.2s;font-weight:600; }
+    .footer-link:hover { color:var(--white); }
+    .footer-bottom { display:flex;justify-content:space-between;align-items:center;padding-top:32px;border-top:1px solid var(--border);flex-wrap:wrap;gap:16px; }
+    .footer-copy { font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted); }
+    .footer-signature { font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);text-align:right; }
+    .footer-signature strong { color:var(--green); }
+
+    /* REVEAL */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .reveal { opacity:0;transform:translateY(28px);transition:opacity 0.75s ease,transform 0.75s ease; }
+    .reveal.visible { opacity:1;transform:translateY(0); }
+    .reveal-d1{transition-delay:0.1s}.reveal-d2{transition-delay:0.18s}.reveal-d3{transition-delay:0.26s}.reveal-d4{transition-delay:0.34s}
+
+    /* PILLAR SHARED */
+    .pillar-bar { height:3px;background:rgba(255,255,255,0.07);border-radius:2px;margin-top:12px;overflow:hidden; }
+    .pillar-bar-fill { height:100%;border-radius:2px;transition:width 1s cubic-bezier(0.25,1,0.5,1); }
+    .pillar-bar-fill.env { background:var(--green); }
+    .pillar-bar-fill.soc { background:var(--gold); }
+    .pillar-bar-fill.gov { background:#60b4ff; }
+
+    /* COMPANY HERO */
+    .co-hero { min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:140px 64px 80px;position:relative;overflow:hidden; }
+    .co-hero::before { content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(46,204,138,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(46,204,138,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black 20%,transparent 100%); }
+    .orb { position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none; }
+    .orb-1 { width:600px;height:600px;background:rgba(46,204,138,0.07);top:-150px;right:-150px;animation:drift 14s ease-in-out infinite alternate; }
+    .orb-2 { width:400px;height:400px;background:rgba(201,168,76,0.05);bottom:-50px;left:5%;animation:drift 18s ease-in-out infinite alternate-reverse; }
+    @keyframes drift { from{transform:translate(0,0)} to{transform:translate(40px,25px)} }
+
+    .back-link { font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.12em;color:var(--muted);text-decoration:none;text-transform:uppercase;display:inline-flex;align-items:center;gap:8px;margin-bottom:56px;transition:color 0.2s;opacity:0;animation:fadeUp 0.6s 0.2s forwards;position:relative;z-index:1; }
+    .back-link::before { content:'←';font-size:0.9rem; }
+    .back-link:hover { color:var(--green); }
+
+    .co-hero-inner { display:grid;grid-template-columns:1fr auto;gap:64px;align-items:flex-end;position:relative;z-index:1; }
+    .co-eyebrow { font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.18em;color:var(--green);text-transform:uppercase;margin-bottom:24px;opacity:0;animation:fadeUp 0.7s 0.35s forwards;display:flex;align-items:center;gap:10px; }
+    .co-eyebrow::before { content:'';width:24px;height:1px;background:var(--green); }
+    .co-name { font-family:'DM Serif Display',serif;font-size:clamp(3rem,6vw,6rem);line-height:1;letter-spacing:-0.02em;opacity:0;animation:fadeUp 0.7s 0.5s forwards;margin-bottom:10px; }
+    .co-display-name { font-size:1rem;color:var(--muted);line-height:1.5;margin-bottom:24px;opacity:0;animation:fadeUp 0.7s 0.6s forwards; }
+    .co-badges { display:flex;gap:10px;flex-wrap:wrap;opacity:0;animation:fadeUp 0.7s 0.7s forwards;margin-top:16px; }
+    .co-badge { font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;padding:5px 14px;border-radius:2px;border:1px solid; }
+    .co-badge-sector { color:var(--muted);border-color:var(--border);background:rgba(255,255,255,0.03); }
+    .co-badge.band-leader   { color:var(--green);border-color:rgba(46,204,138,0.4);background:rgba(46,204,138,0.06); }
+    .co-badge.band-performer { color:var(--gold);border-color:rgba(201,168,76,0.4);background:rgba(201,168,76,0.06); }
+    .co-badge.band-developing { color:var(--muted);border-color:var(--border);background:rgba(255,255,255,0.03); }
+
+    .co-score-block { text-align:right;opacity:0;animation:fadeUp 0.7s 0.65s forwards;min-width:200px; }
+    .co-score-big { font-family:'DM Serif Display',serif;font-size:clamp(4rem,9vw,9rem);color:var(--green);line-height:1;letter-spacing:-0.04em; }
+    .co-score-label { font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-top:6px; }
+    .co-score-bar { height:3px;background:rgba(255,255,255,0.07);border-radius:2px;margin-top:16px;overflow:hidden; }
+    .co-score-fill { height:100%;background:var(--green);border-radius:2px;transition:width 1.2s cubic-bezier(0.25,1,0.5,1); }
+
+    /* PILLAR OVERVIEW */
+    .co-pillars { padding:80px 64px;background:var(--navy-mid);border-top:1px solid var(--border);border-bottom:1px solid var(--border); }
+    .co-pillar-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:960px; }
+    .co-pillar-card { padding:36px 32px;background:var(--card);border:1px solid var(--border);border-radius:6px;position:relative;overflow:hidden; }
+    .co-pillar-letter { font-family:'DM Serif Display',serif;font-size:3.5rem;line-height:1;margin-bottom:8px; }
+    .co-pillar-letter.env { color:var(--green); }
+    .co-pillar-letter.soc { color:var(--gold); }
+    .co-pillar-letter.gov { color:#60b4ff; }
+    .co-pillar-label { font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;margin-bottom:16px; }
+    .co-pillar-score { font-family:'DM Serif Display',serif;font-size:2.8rem;line-height:1; }
+    .co-pillar-score.env { color:var(--green); }
+    .co-pillar-score.soc { color:var(--gold); }
+    .co-pillar-score.gov { color:#60b4ff; }
+    .co-pillar-accent { position:absolute;bottom:0;left:0;right:0;height:2px; }
+    .co-pillar-accent.env { background:var(--green); }
+    .co-pillar-accent.soc { background:var(--gold); }
+    .co-pillar-accent.gov { background:#60b4ff; }
+
+    /* INDICATOR SECTIONS */
+    .co-indicators { padding:80px 64px; }
+    .co-indicators-alt { background:var(--navy-mid);border-top:1px solid var(--border);border-bottom:1px solid var(--border); }
+    .co-section-header { display:flex;align-items:center;gap:20px;margin-bottom:40px; }
+    .co-pillar-letter-sm { font-family:'DM Serif Display',serif;font-size:2rem;line-height:1; }
+    .co-pillar-letter-sm.env { color:var(--green); }
+    .co-pillar-letter-sm.soc { color:var(--gold); }
+    .co-pillar-letter-sm.gov { color:#60b4ff; }
+    .co-section-title { font-family:'DM Serif Display',serif;font-size:clamp(1.6rem,3vw,2.6rem); }
+    .co-section-sub { font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-left:auto;align-self:center; }
+
+    .indicator-table { width:100%;border-collapse:collapse; }
+    .indicator-table thead tr { border-bottom:1px solid rgba(255,255,255,0.12); }
+    .indicator-table th { font-family:'DM Mono',monospace;font-size:0.6rem;letter-spacing:0.14em;color:var(--muted);text-transform:uppercase;padding:0 12px 14px;font-weight:400;text-align:left; }
+    .indicator-table th:last-child { text-align:right; }
+    .indicator-table tbody tr { border-bottom:1px solid var(--border);transition:background 0.15s; }
+    .indicator-table tbody tr:last-child { border-bottom:none; }
+    .indicator-table tbody tr:hover { background:rgba(255,255,255,0.025); }
+    .indicator-table td { padding:14px 12px;vertical-align:middle; }
+
+    .ind-id { font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.1em;color:var(--muted);white-space:nowrap;width:52px; }
+    .ind-name { font-size:0.85rem;color:var(--white);font-weight:600;min-width:200px; }
+    .ind-bar-wrap { width:100%;padding-right:16px; }
+    .ind-bar { height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;min-width:100px; }
+    .ind-bar-fill { height:100%;border-radius:2px;transition:width 0.9s cubic-bezier(0.25,1,0.5,1); }
+    .ind-bar-fill.env { background:var(--green); }
+    .ind-bar-fill.soc { background:var(--gold); }
+    .ind-bar-fill.gov { background:#60b4ff; }
+    .ind-score { font-family:'DM Serif Display',serif;font-size:1.2rem;text-align:right;white-space:nowrap;width:60px; }
+    .ind-score.env { color:var(--green); }
+    .ind-score.soc { color:var(--gold); }
+    .ind-score.gov { color:#60b4ff; }
+
+    /* BAND COLORS */
+    .band-leader   { color:var(--green); }
+    .band-performer { color:var(--gold); }
+    .band-developing { color:var(--muted); }
+
+    @media(max-width:960px){
+      nav{padding:18px 24px;}
+      .nav-links{display:none;}
+      .hamburger{display:flex;}
+      .co-hero{padding:120px 24px 64px;}
+      .co-hero-inner{grid-template-columns:1fr;gap:36px;}
+      .co-score-block{text-align:left;}
+      .co-pillars{padding:56px 24px;}
+      .co-pillar-grid{grid-template-columns:1fr;}
+      .co-indicators,.co-indicators-alt{padding:56px 24px;}
+      .indicator-table th:nth-child(3),.indicator-table td:nth-child(3){display:none;}
+      footer{padding:40px 24px;}
+      .footer-top{grid-template-columns:1fr;gap:32px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-transition"></div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="/#scores" onclick="closeMobile()">Scores</a>
+  <a href="/#leaderboard" onclick="closeMobile()">Leaderboard</a>
+  <a href="/#what-is-esgrow" onclick="closeMobile()">What is ESGrow</a>
+  <a href="/#how" onclick="closeMobile()">How It Works</a>
+  <a href="/#about" onclick="closeMobile()">About</a>
+  <a href="/#contact" onclick="closeMobile()">Contact</a>
+  <div class="mobile-socials">
+    <a href="https://www.behance.net/jonathanikowa" target="_blank">Behance</a>
+    <a href="https://www.linkedin.com/in/jonathan-ikowa-b8b26422b/" target="_blank">LinkedIn</a>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="/" class="nav-logo"><span>ESG</span>row</a>
+  <ul class="nav-links">
+    <li><a href="/#scores">Scores</a></li>
+    <li><a href="/#leaderboard">Leaderboard</a></li>
+    <li><a href="/#what-is-esgrow">What is ESGrow</a></li>
+    <li><a href="/#how">How It Works</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#contact" class="nav-cta">Contact</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     COMPANY HERO
+     ═══════════════════════════════════════════════════════ -->
+<section class="co-hero">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <a href="/#leaderboard" class="back-link">All Companies</a>
+
+  <div class="co-hero-inner">
+    <div class="co-hero-left">
+      <p class="co-eyebrow">{{ sector_name }} &middot; Rank {{ rank }} of {{ total_companies }}</p>
+      <h1 class="co-name">{{ company_name }}</h1>
+      {% if display_name and display_name != company_name %}
+      <p class="co-display-name">{{ display_name }}</p>
+      {% endif %}
+      <div class="co-badges">
+        <span class="co-badge co-badge-sector">{{ sector_name }}</span>
+        <span class="co-badge {% if 'Leader' in band %}band-leader{% elif 'Performer' in band %}band-performer{% else %}band-developing{% endif %}">{{ band }}</span>
+      </div>
+    </div>
+    <div class="co-score-block">
+      <div class="co-score-big">{{ final_score | round(1) }}</div>
+      <div class="co-score-label">/ 100 &nbsp;Overall ESG Score</div>
+      <div class="co-score-bar">
+        <div class="co-score-fill" style="width:{{ final_score }}%"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PILLAR OVERVIEW
+     ═══════════════════════════════════════════════════════ -->
+<section class="co-pillars">
+  <div class="co-pillar-grid">
+    <div class="co-pillar-card reveal">
+      <div class="co-pillar-letter env">E</div>
+      <div class="co-pillar-label">Environment</div>
+      <div class="co-pillar-score env">{{ e_score | round(1) }}</div>
+      <div class="pillar-bar"><div class="pillar-bar-fill env" style="width:{{ e_score }}%"></div></div>
+      <div class="co-pillar-accent env"></div>
+    </div>
+    <div class="co-pillar-card reveal reveal-d1">
+      <div class="co-pillar-letter soc">S</div>
+      <div class="co-pillar-label">Social</div>
+      <div class="co-pillar-score soc">{{ s_score | round(1) }}</div>
+      <div class="pillar-bar"><div class="pillar-bar-fill soc" style="width:{{ s_score }}%"></div></div>
+      <div class="co-pillar-accent soc"></div>
+    </div>
+    <div class="co-pillar-card reveal reveal-d2">
+      <div class="co-pillar-letter gov">G</div>
+      <div class="co-pillar-label">Governance</div>
+      <div class="co-pillar-score gov">{{ g_score | round(1) }}</div>
+      <div class="pillar-bar"><div class="pillar-bar-fill gov" style="width:{{ g_score }}%"></div></div>
+      <div class="co-pillar-accent gov"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     ENVIRONMENT INDICATORS
+     ═══════════════════════════════════════════════════════ -->
+<section class="co-indicators">
+  <div class="co-section-header">
+    <div class="co-pillar-letter-sm env">E</div>
+    <h2 class="co-section-title">Environment</h2>
+    <span class="co-section-sub">{{ indicators['E'] | length }} Indicators</span>
+  </div>
+  <table class="indicator-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Indicator</th>
+        <th>Score</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ind in indicators['E'] %}
+      <tr>
+        <td class="ind-id">{{ ind.id }}</td>
+        <td class="ind-name">{{ ind.name }}</td>
+        <td class="ind-bar-wrap"><div class="ind-bar"><div class="ind-bar-fill env" style="width:{{ ind.score }}%"></div></div></td>
+        <td class="ind-score env">{{ ind.score | int }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SOCIAL INDICATORS
+     ═══════════════════════════════════════════════════════ -->
+<section class="co-indicators co-indicators-alt">
+  <div class="co-section-header">
+    <div class="co-pillar-letter-sm soc">S</div>
+    <h2 class="co-section-title">Social</h2>
+    <span class="co-section-sub">{{ indicators['S'] | length }} Indicators</span>
+  </div>
+  <table class="indicator-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Indicator</th>
+        <th>Score</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ind in indicators['S'] %}
+      <tr>
+        <td class="ind-id">{{ ind.id }}</td>
+        <td class="ind-name">{{ ind.name }}</td>
+        <td class="ind-bar-wrap"><div class="ind-bar"><div class="ind-bar-fill soc" style="width:{{ ind.score }}%"></div></div></td>
+        <td class="ind-score soc">{{ ind.score | int }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     GOVERNANCE INDICATORS
+     ═══════════════════════════════════════════════════════ -->
+<section class="co-indicators">
+  <div class="co-section-header">
+    <div class="co-pillar-letter-sm gov">G</div>
+    <h2 class="co-section-title">Governance</h2>
+    <span class="co-section-sub">{{ indicators['G'] | length }} Indicators</span>
+  </div>
+  <table class="indicator-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Indicator</th>
+        <th>Score</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ind in indicators['G'] %}
+      <tr>
+        <td class="ind-id">{{ ind.id }}</td>
+        <td class="ind-name">{{ ind.name }}</td>
+        <td class="ind-bar-wrap"><div class="ind-bar"><div class="ind-bar-fill gov" style="width:{{ ind.score }}%"></div></div></td>
+        <td class="ind-score gov">{{ ind.score | int }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     BACK LINK ROW
+     ═══════════════════════════════════════════════════════ -->
+<div style="padding:48px 64px;background:var(--navy-mid);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+  <a href="/#leaderboard" class="btn-outline" style="display:inline-block;padding:14px 32px;border:1px solid rgba(46,204,138,0.5);color:var(--green);font-family:'Syne',sans-serif;font-weight:700;font-size:0.82rem;letter-spacing:0.1em;text-transform:uppercase;border-radius:2px;text-decoration:none;transition:all 0.2s;">← All Companies</a>
+  <span style="font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;">{{ company_name }} &nbsp;·&nbsp; Rank {{ rank }} of {{ total_companies }} &nbsp;·&nbsp; {{ sector_name }}</span>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name"><span>ESG</span>row</div>
+      <p class="footer-tagline">Rooted in Africa. Growing Responsibly. Built on data, not assumptions.</p>
+    </div>
+    <div>
+      <div class="footer-col-label">Navigate</div>
+      <div class="footer-links">
+        <a href="/#scores" class="footer-link">Rankings</a>
+        <a href="/#leaderboard" class="footer-link">Leaderboard</a>
+        <a href="/#what-is-esgrow" class="footer-link">What is ESGrow</a>
+        <a href="/#how" class="footer-link">How It Works</a>
+        <a href="/#about" class="footer-link">About</a>
+        <a href="/#contact" class="footer-link">Contact</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-label">Connect</div>
+      <div class="footer-links">
+        <a href="https://www.behance.net/jonathanikowa" target="_blank" class="footer-link">Behance</a>
+        <a href="https://www.linkedin.com/in/jonathan-ikowa-b8b26422b/" target="_blank" class="footer-link">LinkedIn</a>
+        <a href="mailto:ikowarts768@gmail.com" class="footer-link">ikowarts768@gmail.com</a>
+        <a href="tel:+260777661331" class="footer-link">+260 777 661 331</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">2025-2026 Jonathan Ikowa &middot; Kitwe, Copperbelt, Zambia</div>
+    <div class="footer-signature">Built by <strong>Jonathan Ikowa</strong> &middot; ESGrow v2.0</div>
+  </div>
+</footer>
+
+<script>
+  /* ── Custom cursor ── */
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function tick(){
+    rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
+    cursor.style.transform=`translate(${mx-4}px,${my-4}px)`;
+    ring.style.transform=`translate(${rx-16}px,${ry-16}px)`;
+    requestAnimationFrame(tick);
+  })();
+
+  /* ── Nav scroll ── */
+  window.addEventListener('scroll',()=>{
+    document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>60);
+  });
+
+  /* ── Mobile menu ── */
+  function toggleMobile(){
+    document.getElementById('mobileMenu').classList.toggle('open');
+    document.getElementById('hamburger').classList.toggle('open');
+    document.body.style.overflow=document.getElementById('mobileMenu').classList.contains('open')?'hidden':'';
+  }
+  function closeMobile(){
+    document.getElementById('mobileMenu').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
+    document.body.style.overflow='';
+  }
+
+  /* ── Reveal on scroll ── */
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{ if(e.isIntersecting) setTimeout(()=>e.target.classList.add('visible'),i*60); });
+  },{threshold:0.06});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  /* Fallback: reveal anything already in viewport after load */
+  setTimeout(()=>{
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el=>{
+      const r=el.getBoundingClientRect();
+      if(r.top<window.innerHeight+120) el.classList.add('visible');
+    });
+  },160);
+</script>
+</body>
+</html>

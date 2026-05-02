@@ -16,13 +16,20 @@ The project is also a learning journey: it keeps the code understandable, practi
 
 ## Current Status
 
-ESGrow is at the foundation stage.
+ESGrow now includes a recovered working prototype from the earlier ESGPulse project.
 
 Current setup:
 
 - Project instructions saved in `AGENTS.md`
 - GitHub repository connected
-- Simple project structure started
+- FastAPI backend restored
+- Jinja2 HTML templates restored
+- SQLite database restored with sample Zambia company data
+- ESG scoring engine restored
+- CSV batch importer restored
+- Render deployment config restored
+
+Recovered data includes 22 companies, 7 sectors, 24 ESG indicators, and calculated ESG scores.
 
 ## Planned Features
 
@@ -37,8 +44,33 @@ Current setup:
 
 - Python
 - Git and GitHub
+- FastAPI
+- Jinja2 templates
+- SQLAlchemy
+- SQLite for local development
+- PostgreSQL for Render deployment
 
 More tools may be added later only when they are clearly useful.
+
+## How To Run Locally
+
+Install the Python dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the app:
+
+```bash
+uvicorn api:app --reload --port 8000
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000
+```
 
 ## Project Principles
 
@@ -54,4 +86,3 @@ More tools may be added later only when they are clearly useful.
 Created by Jonathan Ikowa.
 
 Jonathan is a Business Administration student, graphic designer, and beginner Python learner interested in ESG, investments, and strategy.
-

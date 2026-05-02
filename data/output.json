@@ -1,0 +1,92 @@
+[
+    {
+        "Company": "SCB_ZAMBIA",
+        "Sector": "Banking",
+        "E": 81.9,
+        "S": 79.8,
+        "G": 91.0,
+        "Final": 85.7,
+        "Band": "ESG Leader"
+    },
+    {
+        "Company": "ZBL",
+        "Sector": "Consumer Goods",
+        "E": 74.9,
+        "S": 70.0,
+        "G": 82.9,
+        "Final": 76.2,
+        "Band": "ESG Performer"
+    },
+    {
+        "Company": "CEC",
+        "Sector": "Energy",
+        "E": 77.1,
+        "S": 74.1,
+        "G": 75.8,
+        "Final": 75.8,
+        "Band": "ESG Performer"
+    },
+    {
+        "Company": "ZANACO",
+        "Sector": "Banking",
+        "E": 56.0,
+        "S": 69.6,
+        "G": 79.6,
+        "Final": 72.6,
+        "Band": "ESG Performer"
+    },
+    {
+        "Company": "AIRTEL",
+        "Sector": "Telecoms",
+        "E": 49.7,
+        "S": 62.8,
+        "G": 80.0,
+        "Final": 68.5,
+        "Band": "ESG Performer"
+    },
+    {
+        "Company": "MTN_ZAMBIA",
+        "Sector": "Telecoms",
+        "E": 63.4,
+        "S": 68.3,
+        "G": 68.2,
+        "Final": 67.5,
+        "Band": "ESG Performer"
+    },
+    {
+        "Company": "ZAMSUG",
+        "Sector": "Agriculture",
+        "E": 67.6,
+        "S": 61.0,
+        "G": 61.4,
+        "Final": 63.9,
+        "Band": "ESG Performer"
+    },
+    {
+        "Company": "ZCCM",
+        "Sector": "Mining",
+        "E": 60.6,
+        "S": 54.4,
+        "G": 68.3,
+        "Final": 60.3,
+        "Band": "ESG Performer"
+    },
+    {
+        "Company": "FQM",
+        "Sector": "Mining",
+        "E": 53.9,
+        "S": 58.3,
+        "G": 75.5,
+        "Final": 59.5,
+        "Band": "Developing"
+    },
+    {
+        "Company": "LAFARGE",
+        "Sector": "Manufacturing",
+        "E": 54.0,
+        "S": 63.9,
+        "G": 62.0,
+        "Final": 59.0,
+        "Band": "Developing"
+    }
+]

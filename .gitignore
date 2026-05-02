@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.env
+venv/
+env/
+.venv/
+
+# Local launchers (not needed on server)
+start_esgrow.py
+start_esgrow_static.py
+add_companies.py
+
+# Individual company sheets (already in master workbook)
+AIRTEL_ESGrow_Filled.xlsx
+CEC_ESGrow_Filled.xlsx
+FQM_ESGrow_Filled.xlsx
+SCB_Zambia_ESGrow_Filled.xlsx
+ZAMSUG_ESGrow_Filled.xlsx
+ZANACO_ESGrow_Filled.xlsx
+ZBL_ESGrow_Filled.xlsx
+ZCCM_ESGrow_Filled.xlsx
+
+# PDFs (large, not needed for serving)
+reports/
+
+# Old root-level output.json (keep data/output.json)
+/output.json
+
+# Claude Code workspace
+.claude/
+
+# Phase 3 research artefacts — large PDFs and text extracts (not needed at runtime)
+data/*.pdf
+data/*_extract.txt
+data/*_diag.txt
+data/*_dump.txt
+data/*_zm_mentions.txt
+data/*_cg.txt
+data/*_tail.txt
+data/*_md_board.txt
+data/*_esg.txt
+data/*_page.html
+data/phase3_template.csv
+data/output_db.json
+
+# Root-level scratch files
+/index.html
+
+# OS
+.DS_Store
+Thumbs.db
