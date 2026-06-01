@@ -415,7 +415,7 @@ function Nav({ page, setPage, search, setSearch }) {
       background:"rgba(5,13,26,0.74)",transition:"padding 0.4s",
       boxShadow:"0 18px 70px rgba(0,0,0,0.28)"}}>
       <button onClick={()=>setPage("home")} style={{background:"none",border:"none",cursor:"pointer",padding:0,display:"flex",alignItems:"center"}}>
-        <img src="/static/logo.png" alt="ESGrow" style={{height: scrolled ? 28 : 34, width:"auto", transition:"height 0.4s"}} />
+        <img src="/static/logo.png" alt="ESGrow" style={{height: scrolled ? 38 : 48, width:"auto", transition:"height 0.4s"}} />
       </button>
       <div style={{display:"flex",gap:28,alignItems:"center"}}>
         {navItems.map(([id,label])=>(
@@ -452,7 +452,7 @@ function Footer({ setPage }) {
       <div style={{padding:"48px 64px",display:"grid",gridTemplateColumns:"1.5fr 1fr 1fr",gap:48}}>
         <div>
           <div style={{marginBottom:8}}>
-            <img src="/static/logo.png" alt="ESGrow" style={{height:28,width:"auto"}} />
+            <img src="/static/logo.png" alt="ESGrow" style={{height:42,width:"auto"}} />
           </div>
           <p style={{fontSize:"0.85rem",color:"#7a8fa8",lineHeight:1.7,maxWidth:280}}>Rooted in Africa. Growing Responsibly. Built on data, not assumptions.</p>
         </div>
