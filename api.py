@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 import os
 
 from database import SessionLocal, init_db
-from models import Company, Sector, Score
+from models import Company, Sector, Score, IndicatorScore, IndicatorDefinition
 import engine
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,11 +44,39 @@ def get_db():
 
 # ── Helpers ─────────────────────────────────────────────────
 
+def make_short_name(name):
+    """Generate a short ticker-style name from company name."""
+    # Map known names to their short codes
+    SHORT_MAP = {
+        "SCB Zambia": "SCB", "Zambia Breweries": "ZBL", "Copperbelt Energy": "CEC",
+        "Zambia National Bank": "ZANACO", "Airtel Zambia": "AIRTEL", "MTN Zambia": "MTN",
+        "Zambia Sugar": "ZAMSUG", "ZCCM Investments": "ZCCM",
+        "First Quantum Minerals": "FQM", "Lafarge Zambia": "LAFARGE",
+    }
+    return SHORT_MAP.get(name, name.split()[0].upper()[:6])
+
+
+def make_company_id(name):
+    """Generate a stable ID from company name."""
+    ID_MAP = {
+        "SCB Zambia": "SCB_ZAMBIA", "Zambia Breweries": "ZBL", "Copperbelt Energy": "CEC",
+        "Zambia National Bank": "ZANACO", "Airtel Zambia": "AIRTEL", "MTN Zambia": "MTN_ZAMBIA",
+        "Zambia Sugar": "ZAMSUG", "ZCCM Investments": "ZCCM",
+        "First Quantum Minerals": "FQM", "Lafarge Zambia": "LAFARGE",
+    }
+    return ID_MAP.get(name, name.upper().replace(" ", "_"))
+
+
 def format_score(score_row):
     """Convert a Score ORM object into the API dict shape."""
+    name = score_row.company.display_name or score_row.company.name
     return {
-        "Company": score_row.company.name,
+        "id": make_company_id(name),
+        "name": name,
+        "short": make_short_name(name),
+        "Company": name,
         "Sector": score_row.company.sector.name,
+        "sector": score_row.company.sector.name,
         "E": score_row.e_score,
         "S": score_row.s_score,
         "G": score_row.g_score,
@@ -221,6 +249,81 @@ def get_by_sector(sector: str, db: Session = Depends(get_db)):
     if not rows:
         raise HTTPException(status_code=404, detail=f"No companies found for sector '{sector}'.")
     return [format_score(r) for r in rows]
+
+
+@app.get("/api/company/{name}/indicators")
+def get_company_indicators(name: str, db: Session = Depends(get_db)):
+    """Return all 24 indicator scores for a company, grouped by pillar."""
+    company = (
+        db.query(Company)
+        .filter(Company.name.ilike(name))
+        .filter(Company.is_active == True)
+        .first()
+    )
+    if not company:
+        # Also try matching display_name
+        company = (
+            db.query(Company)
+            .filter(Company.is_active == True)
+            .all()
+        )
+        company = next((c for c in company if make_company_id(c.display_name or c.name) == name), None)
+    if not company:
+        raise HTTPException(status_code=404, detail=f"Company '{name}' not found.")
+
+    indicators = {"E": [], "S": [], "G": []}
+    for iscore in sorted(company.indicator_scores, key=lambda x: x.indicator.sort_order):
+        pillar = iscore.indicator.pillar
+        indicators[pillar].append({
+            "id": iscore.indicator_id,
+            "name": iscore.indicator.name,
+            "score": iscore.score,
+        })
+    return indicators
+
+
+@app.get("/api/dashboard")
+def get_dashboard_data(db: Session = Depends(get_db)):
+    """Return everything the React frontend needs in a single call."""
+    # Companies with scores
+    rows = (
+        db.query(Score)
+        .join(Company)
+        .join(Sector)
+        .filter(Company.is_active == True)
+        .order_by(Score.final_score.desc())
+        .all()
+    )
+    companies = [format_score(r) for r in rows]
+
+    # Sectors with weights
+    sectors_db = db.query(Sector).all()
+    sector_list = sorted(set(c["sector"] for c in companies))
+    sector_weights = {}
+    for s in sectors_db:
+        sector_weights[s.name] = {"E": s.weight_e, "S": s.weight_s, "G": s.weight_g}
+
+    # All indicators grouped by company ID
+    all_indicators = {}
+    for row in rows:
+        company = row.company
+        cid = make_company_id(company.display_name or company.name)
+        indicators = {"E": [], "S": [], "G": []}
+        for iscore in sorted(company.indicator_scores, key=lambda x: x.indicator.sort_order):
+            pillar = iscore.indicator.pillar
+            indicators[pillar].append({
+                "id": iscore.indicator_id,
+                "name": iscore.indicator.name,
+                "score": iscore.score,
+            })
+        all_indicators[cid] = indicators
+
+    return {
+        "companies": companies,
+        "sectors": sector_list,
+        "sectorWeights": sector_weights,
+        "indicators": all_indicators,
+    }
 
 
 @app.post("/api/refresh")

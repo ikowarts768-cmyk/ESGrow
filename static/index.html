@@ -74,42 +74,9 @@
 
 <script type="text/babel">
 // ═══════════════════════════════════════════════════
-// DATA
+// DATA — fetched live from the API
 // ═══════════════════════════════════════════════════
-const DATA = {
-  companies: [
-    { id:"SCB_ZAMBIA", name:"SCB Zambia",           short:"SCB",    sector:"Banking",         E:81.9, S:79.8, G:91.0, Final:85.7, Band:"ESG Leader"    },
-    { id:"ZBL",        name:"Zambia Breweries",      short:"ZBL",    sector:"Consumer Goods",  E:74.9, S:70.0, G:82.9, Final:76.2, Band:"ESG Performer" },
-    { id:"CEC",        name:"Copperbelt Energy",     short:"CEC",    sector:"Energy",          E:77.1, S:74.1, G:75.8, Final:75.8, Band:"ESG Performer" },
-    { id:"ZANACO",     name:"Zambia National Bank",  short:"ZANACO", sector:"Banking",         E:56.0, S:69.6, G:79.6, Final:72.6, Band:"ESG Performer" },
-    { id:"AIRTEL",     name:"Airtel Zambia",         short:"AIRTEL", sector:"Telecoms",        E:49.7, S:62.8, G:80.0, Final:68.5, Band:"ESG Performer" },
-    { id:"MTN_ZAMBIA", name:"MTN Zambia",            short:"MTN",    sector:"Telecoms",        E:63.4, S:68.3, G:68.2, Final:67.5, Band:"ESG Performer" },
-    { id:"ZAMSUG",     name:"Zambia Sugar",          short:"ZAMSUG", sector:"Agriculture",     E:67.6, S:61.0, G:61.4, Final:63.9, Band:"ESG Performer" },
-    { id:"ZCCM",       name:"ZCCM Investments",      short:"ZCCM",   sector:"Mining",          E:60.6, S:54.4, G:68.3, Final:60.3, Band:"ESG Performer" },
-    { id:"FQM",        name:"First Quantum Minerals",short:"FQM",    sector:"Mining",          E:53.9, S:58.3, G:75.5, Final:59.5, Band:"Developing"    },
-    { id:"LAFARGE",    name:"Lafarge Zambia",        short:"LAFARGE",sector:"Manufacturing",   E:54.0, S:63.9, G:62.0, Final:59.0, Band:"Developing"    },
-  ],
-  indicators: {
-    SCB_ZAMBIA: { E:[{id:"E01",name:"Carbon Emissions Intensity",score:84},{id:"E02",name:"Energy Efficiency",score:88},{id:"E03",name:"Renewable Energy Usage",score:76},{id:"E04",name:"Water Consumption",score:80},{id:"E05",name:"Waste Management",score:82},{id:"E06",name:"Biodiversity Policy",score:78},{id:"E07",name:"Environmental Reporting",score:88},{id:"E08",name:"Climate Risk Disclosure",score:72}], S:[{id:"S01",name:"Employee Diversity",score:82},{id:"S02",name:"Health & Safety",score:79},{id:"S03",name:"Community Investment",score:74},{id:"S04",name:"Labour Rights Compliance",score:84},{id:"S05",name:"Gender Pay Equity",score:76},{id:"S06",name:"Training & Development",score:80},{id:"S07",name:"Customer Data Privacy",score:78},{id:"S08",name:"Supply Chain Ethics",score:72}], G:[{id:"G01",name:"Board Independence",score:94},{id:"G02",name:"Executive Pay Transparency",score:90},{id:"G03",name:"Anti-Corruption Policy",score:92},{id:"G04",name:"Audit Committee Quality",score:88},{id:"G05",name:"Shareholder Rights",score:90},{id:"G06",name:"ESG Reporting Frequency",score:94},{id:"G07",name:"Whistleblower Policy",score:86},{id:"G08",name:"Tax Transparency",score:88}] },
-    ZBL:        { E:[{id:"E01",name:"Carbon Emissions Intensity",score:72},{id:"E02",name:"Energy Efficiency",score:76},{id:"E03",name:"Renewable Energy Usage",score:68},{id:"E04",name:"Water Consumption",score:80},{id:"E05",name:"Waste Management",score:74},{id:"E06",name:"Biodiversity Policy",score:70},{id:"E07",name:"Environmental Reporting",score:78},{id:"E08",name:"Climate Risk Disclosure",score:66}], S:[{id:"S01",name:"Employee Diversity",score:68},{id:"S02",name:"Health & Safety",score:74},{id:"S03",name:"Community Investment",score:66},{id:"S04",name:"Labour Rights Compliance",score:72},{id:"S05",name:"Gender Pay Equity",score:64},{id:"S06",name:"Training & Development",score:72},{id:"S07",name:"Customer Data Privacy",score:70},{id:"S08",name:"Supply Chain Ethics",score:68}], G:[{id:"G01",name:"Board Independence",score:84},{id:"G02",name:"Executive Pay Transparency",score:80},{id:"G03",name:"Anti-Corruption Policy",score:86},{id:"G04",name:"Audit Committee Quality",score:82},{id:"G05",name:"Shareholder Rights",score:80},{id:"G06",name:"ESG Reporting Frequency",score:84},{id:"G07",name:"Whistleblower Policy",score:80},{id:"G08",name:"Tax Transparency",score:82}] },
-    CEC:        { E:[{id:"E01",name:"Carbon Emissions Intensity",score:74},{id:"E02",name:"Energy Efficiency",score:80},{id:"E03",name:"Renewable Energy Usage",score:82},{id:"E04",name:"Water Consumption",score:76},{id:"E05",name:"Waste Management",score:72},{id:"E06",name:"Biodiversity Policy",score:74},{id:"E07",name:"Environmental Reporting",score:78},{id:"E08",name:"Climate Risk Disclosure",score:76}], S:[{id:"S01",name:"Employee Diversity",score:70},{id:"S02",name:"Health & Safety",score:78},{id:"S03",name:"Community Investment",score:72},{id:"S04",name:"Labour Rights Compliance",score:76},{id:"S05",name:"Gender Pay Equity",score:70},{id:"S06",name:"Training & Development",score:76},{id:"S07",name:"Customer Data Privacy",score:74},{id:"S08",name:"Supply Chain Ethics",score:72}], G:[{id:"G01",name:"Board Independence",score:78},{id:"G02",name:"Executive Pay Transparency",score:74},{id:"G03",name:"Anti-Corruption Policy",score:76},{id:"G04",name:"Audit Committee Quality",score:76},{id:"G05",name:"Shareholder Rights",score:74},{id:"G06",name:"ESG Reporting Frequency",score:76},{id:"G07",name:"Whistleblower Policy",score:76},{id:"G08",name:"Tax Transparency",score:74}] },
-    ZANACO:     { E:[{id:"E01",name:"Carbon Emissions Intensity",score:52},{id:"E02",name:"Energy Efficiency",score:58},{id:"E03",name:"Renewable Energy Usage",score:50},{id:"E04",name:"Water Consumption",score:62},{id:"E05",name:"Waste Management",score:56},{id:"E06",name:"Biodiversity Policy",score:54},{id:"E07",name:"Environmental Reporting",score:60},{id:"E08",name:"Climate Risk Disclosure",score:48}], S:[{id:"S01",name:"Employee Diversity",score:72},{id:"S02",name:"Health & Safety",score:70},{id:"S03",name:"Community Investment",score:68},{id:"S04",name:"Labour Rights Compliance",score:70},{id:"S05",name:"Gender Pay Equity",score:66},{id:"S06",name:"Training & Development",score:72},{id:"S07",name:"Customer Data Privacy",score:68},{id:"S08",name:"Supply Chain Ethics",score:68}], G:[{id:"G01",name:"Board Independence",score:82},{id:"G02",name:"Executive Pay Transparency",score:78},{id:"G03",name:"Anti-Corruption Policy",score:80},{id:"G04",name:"Audit Committee Quality",score:80},{id:"G05",name:"Shareholder Rights",score:78},{id:"G06",name:"ESG Reporting Frequency",score:82},{id:"G07",name:"Whistleblower Policy",score:76},{id:"G08",name:"Tax Transparency",score:80}] },
-    AIRTEL:     { E:[{id:"E01",name:"Carbon Emissions Intensity",score:46},{id:"E02",name:"Energy Efficiency",score:52},{id:"E03",name:"Renewable Energy Usage",score:44},{id:"E04",name:"Water Consumption",score:56},{id:"E05",name:"Waste Management",score:50},{id:"E06",name:"Biodiversity Policy",score:48},{id:"E07",name:"Environmental Reporting",score:54},{id:"E08",name:"Climate Risk Disclosure",score:42}], S:[{id:"S01",name:"Employee Diversity",score:64},{id:"S02",name:"Health & Safety",score:64},{id:"S03",name:"Community Investment",score:60},{id:"S04",name:"Labour Rights Compliance",score:64},{id:"S05",name:"Gender Pay Equity",score:60},{id:"S06",name:"Training & Development",score:64},{id:"S07",name:"Customer Data Privacy",score:62},{id:"S08",name:"Supply Chain Ethics",score:60}], G:[{id:"G01",name:"Board Independence",score:82},{id:"G02",name:"Executive Pay Transparency",score:78},{id:"G03",name:"Anti-Corruption Policy",score:80},{id:"G04",name:"Audit Committee Quality",score:80},{id:"G05",name:"Shareholder Rights",score:80},{id:"G06",name:"ESG Reporting Frequency",score:82},{id:"G07",name:"Whistleblower Policy",score:78},{id:"G08",name:"Tax Transparency",score:78}] },
-    MTN_ZAMBIA: { E:[{id:"E01",name:"Carbon Emissions Intensity",score:62},{id:"E02",name:"Energy Efficiency",score:66},{id:"E03",name:"Renewable Energy Usage",score:60},{id:"E04",name:"Water Consumption",score:66},{id:"E05",name:"Waste Management",score:62},{id:"E06",name:"Biodiversity Policy",score:60},{id:"E07",name:"Environmental Reporting",score:66},{id:"E08",name:"Climate Risk Disclosure",score:60}], S:[{id:"S01",name:"Employee Diversity",score:70},{id:"S02",name:"Health & Safety",score:68},{id:"S03",name:"Community Investment",score:64},{id:"S04",name:"Labour Rights Compliance",score:70},{id:"S05",name:"Gender Pay Equity",score:66},{id:"S06",name:"Training & Development",score:70},{id:"S07",name:"Customer Data Privacy",score:68},{id:"S08",name:"Supply Chain Ethics",score:66}], G:[{id:"G01",name:"Board Independence",score:70},{id:"G02",name:"Executive Pay Transparency",score:66},{id:"G03",name:"Anti-Corruption Policy",score:70},{id:"G04",name:"Audit Committee Quality",score:68},{id:"G05",name:"Shareholder Rights",score:68},{id:"G06",name:"ESG Reporting Frequency",score:70},{id:"G07",name:"Whistleblower Policy",score:66},{id:"G08",name:"Tax Transparency",score:68}] },
-    ZAMSUG:     { E:[{id:"E01",name:"Carbon Emissions Intensity",score:66},{id:"E02",name:"Energy Efficiency",score:70},{id:"E03",name:"Renewable Energy Usage",score:68},{id:"E04",name:"Water Consumption",score:72},{id:"E05",name:"Waste Management",score:66},{id:"E06",name:"Biodiversity Policy",score:64},{id:"E07",name:"Environmental Reporting",score:68},{id:"E08",name:"Climate Risk Disclosure",score:64}], S:[{id:"S01",name:"Employee Diversity",score:62},{id:"S02",name:"Health & Safety",score:62},{id:"S03",name:"Community Investment",score:60},{id:"S04",name:"Labour Rights Compliance",score:62},{id:"S05",name:"Gender Pay Equity",score:58},{id:"S06",name:"Training & Development",score:62},{id:"S07",name:"Customer Data Privacy",score:60},{id:"S08",name:"Supply Chain Ethics",score:58}], G:[{id:"G01",name:"Board Independence",score:64},{id:"G02",name:"Executive Pay Transparency",score:60},{id:"G03",name:"Anti-Corruption Policy",score:62},{id:"G04",name:"Audit Committee Quality",score:62},{id:"G05",name:"Shareholder Rights",score:60},{id:"G06",name:"ESG Reporting Frequency",score:62},{id:"G07",name:"Whistleblower Policy",score:60},{id:"G08",name:"Tax Transparency",score:60}] },
-    ZCCM:       { E:[{id:"E01",name:"Carbon Emissions Intensity",score:58},{id:"E02",name:"Energy Efficiency",score:62},{id:"E03",name:"Renewable Energy Usage",score:56},{id:"E04",name:"Water Consumption",score:64},{id:"E05",name:"Waste Management",score:60},{id:"E06",name:"Biodiversity Policy",score:58},{id:"E07",name:"Environmental Reporting",score:62},{id:"E08",name:"Climate Risk Disclosure",score:56}], S:[{id:"S01",name:"Employee Diversity",score:56},{id:"S02",name:"Health & Safety",score:56},{id:"S03",name:"Community Investment",score:52},{id:"S04",name:"Labour Rights Compliance",score:56},{id:"S05",name:"Gender Pay Equity",score:52},{id:"S06",name:"Training & Development",score:54},{id:"S07",name:"Customer Data Privacy",score:54},{id:"S08",name:"Supply Chain Ethics",score:50}], G:[{id:"G01",name:"Board Independence",score:70},{id:"G02",name:"Executive Pay Transparency",score:66},{id:"G03",name:"Anti-Corruption Policy",score:70},{id:"G04",name:"Audit Committee Quality",score:68},{id:"G05",name:"Shareholder Rights",score:68},{id:"G06",name:"ESG Reporting Frequency",score:70},{id:"G07",name:"Whistleblower Policy",score:66},{id:"G08",name:"Tax Transparency",score:68}] },
-    FQM:        { E:[{id:"E01",name:"Carbon Emissions Intensity",score:50},{id:"E02",name:"Energy Efficiency",score:56},{id:"E03",name:"Renewable Energy Usage",score:48},{id:"E04",name:"Water Consumption",score:58},{id:"E05",name:"Waste Management",score:54},{id:"E06",name:"Biodiversity Policy",score:52},{id:"E07",name:"Environmental Reporting",score:56},{id:"E08",name:"Climate Risk Disclosure",score:50}], S:[{id:"S01",name:"Employee Diversity",score:60},{id:"S02",name:"Health & Safety",score:60},{id:"S03",name:"Community Investment",score:56},{id:"S04",name:"Labour Rights Compliance",score:60},{id:"S05",name:"Gender Pay Equity",score:56},{id:"S06",name:"Training & Development",score:58},{id:"S07",name:"Customer Data Privacy",score:58},{id:"S08",name:"Supply Chain Ethics",score:56}], G:[{id:"G01",name:"Board Independence",score:78},{id:"G02",name:"Executive Pay Transparency",score:74},{id:"G03",name:"Anti-Corruption Policy",score:76},{id:"G04",name:"Audit Committee Quality",score:76},{id:"G05",name:"Shareholder Rights",score:74},{id:"G06",name:"ESG Reporting Frequency",score:76},{id:"G07",name:"Whistleblower Policy",score:74},{id:"G08",name:"Tax Transparency",score:74}] },
-    LAFARGE:    { E:[{id:"E01",name:"Carbon Emissions Intensity",score:50},{id:"E02",name:"Energy Efficiency",score:56},{id:"E03",name:"Renewable Energy Usage",score:48},{id:"E04",name:"Water Consumption",score:58},{id:"E05",name:"Waste Management",score:54},{id:"E06",name:"Biodiversity Policy",score:52},{id:"E07",name:"Environmental Reporting",score:56},{id:"E08",name:"Climate Risk Disclosure",score:50}], S:[{id:"S01",name:"Employee Diversity",score:66},{id:"S02",name:"Health & Safety",score:66},{id:"S03",name:"Community Investment",score:62},{id:"S04",name:"Labour Rights Compliance",score:66},{id:"S05",name:"Gender Pay Equity",score:62},{id:"S06",name:"Training & Development",score:64},{id:"S07",name:"Customer Data Privacy",score:64},{id:"S08",name:"Supply Chain Ethics",score:60}], G:[{id:"G01",name:"Board Independence",score:64},{id:"G02",name:"Executive Pay Transparency",score:60},{id:"G03",name:"Anti-Corruption Policy",score:62},{id:"G04",name:"Audit Committee Quality",score:62},{id:"G05",name:"Shareholder Rights",score:60},{id:"G06",name:"ESG Reporting Frequency",score:64},{id:"G07",name:"Whistleblower Policy",score:62},{id:"G08",name:"Tax Transparency",score:60}] },
-  },
-  sectors: ["Banking","Consumer Goods","Energy","Agriculture","Telecoms","Mining","Manufacturing"],
-  sectorWeights: {
-    Mining:{E:0.50,S:0.30,G:0.20}, Banking:{E:0.15,S:0.35,G:0.50},
-    Energy:{E:0.42,S:0.33,G:0.25}, Agriculture:{E:0.42,S:0.33,G:0.25},
-    Telecoms:{E:0.15,S:0.40,G:0.45}, "Consumer Goods":{E:0.22,S:0.38,G:0.40},
-    Manufacturing:{E:0.45,S:0.30,G:0.25},
-  },
-};
-DATA.leaderboard = [...DATA.companies].sort((a,b) => b.Final - a.Final);
+let DATA = null;
 
 // ── Helpers ──────────────────────────────────────────────
 function bandColor(band) {
@@ -1561,6 +1528,32 @@ function App() {
   const [company, setCompanyRaw] = React.useState(sessionStorage.getItem("eg_co")||null);
   const [search, setSearch]   = React.useState("");
   const [pageKey, setPageKey] = React.useState(0);
+  const [loaded, setLoaded]   = React.useState(false);
+  const [error, setError]     = React.useState(null);
+
+  // Fetch live data from the API on mount
+  React.useEffect(()=>{
+    fetch("/api/dashboard")
+      .then(r => { if(!r.ok) throw new Error(`API error ${r.status}`); return r.json(); })
+      .then(data => {
+        DATA = {
+          companies: data.companies.map(c => ({
+            id: c.id, name: c.name || c.Company, short: c.short,
+            sector: c.sector || c.Sector,
+            E: c.E, S: c.S, G: c.G, Final: c.Final, Band: c.Band,
+          })),
+          indicators: data.indicators,
+          sectors: data.sectors,
+          sectorWeights: data.sectorWeights,
+        };
+        DATA.leaderboard = [...DATA.companies].sort((a,b) => b.Final - a.Final);
+        setLoaded(true);
+      })
+      .catch(err => {
+        console.error("Failed to load dashboard data:", err);
+        setError(err.message);
+      });
+  },[]);
 
   function setPage(p) {
     setPageRaw(p); sessionStorage.setItem("eg_page",p);
@@ -1568,6 +1561,28 @@ function App() {
   }
   function setCompany(id) {
     setCompanyRaw(id); sessionStorage.setItem("eg_co",id); setPage("company");
+  }
+
+  // Loading screen
+  if (!loaded) {
+    return (
+      <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#050d1a"}}>
+        <img src="/static/logo.png" alt="ESGrow" style={{height:56,marginBottom:32,animation:"floatY 2s ease-in-out infinite"}} />
+        {error
+          ? <div style={{textAlign:"center"}}>
+              <div style={{fontFamily:"'Neurial Grotesk',sans-serif",fontSize:"1.1rem",color:"#ff6b6b",marginBottom:12}}>Failed to load data</div>
+              <div style={{fontFamily:"'Cascadia Code',monospace",fontSize:"0.72rem",color:"#7a8fa8"}}>{error}</div>
+              <button onClick={()=>window.location.reload()} style={{marginTop:20,background:"#2ecc8a",color:"#050d1a",border:"none",padding:"10px 24px",fontFamily:"'Neurial Grotesk',sans-serif",fontWeight:700,fontSize:"0.8rem",borderRadius:4,cursor:"pointer"}}>Retry</button>
+            </div>
+          : <div style={{textAlign:"center"}}>
+              <div style={{fontFamily:"'Cascadia Code',monospace",fontSize:"0.72rem",letterSpacing:"0.15em",color:"#2ecc8a",textTransform:"uppercase"}}>Loading ESG data...</div>
+              <div style={{marginTop:16,width:120,height:3,background:"rgba(255,255,255,0.07)",borderRadius:2,overflow:"hidden"}}>
+                <div style={{width:"60%",height:"100%",background:"#2ecc8a",borderRadius:2,animation:"slideLeft 1.2s ease-in-out infinite alternate"}} />
+              </div>
+            </div>
+        }
+      </div>
+    );
   }
 
   const nav = { setPage, setCompany };
