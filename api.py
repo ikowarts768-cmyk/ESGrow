@@ -46,12 +46,27 @@ def get_db():
 
 def make_short_name(name):
     """Generate a short ticker-style name from company name."""
-    # Map known names to their short codes
     SHORT_MAP = {
-        "SCB Zambia": "SCB", "Zambia Breweries": "ZBL", "Copperbelt Energy": "CEC",
-        "Zambia National Bank": "ZANACO", "Airtel Zambia": "AIRTEL", "MTN Zambia": "MTN",
-        "Zambia Sugar": "ZAMSUG", "ZCCM Investments": "ZCCM",
-        "First Quantum Minerals": "FQM", "Lafarge Zambia": "LAFARGE",
+        "Standard Chartered Zambia": "SCB",
+        "Zambian Breweries": "ZBL",
+        "Copperbelt Energy Corporation": "CEC",
+        "First National Bank Zambia Limited": "FNB",
+        "Zanaco Bank": "ZANACO",
+        "Stanbic Bank Zambia Limited": "STANBIC",
+        "Shoprite Holdings Limited (Zambia operations)": "SHOPRITE",
+        "Absa Bank Zambia PLC": "ABSA",
+        "Airtel Zambia": "AIRTEL",
+        "MTN Zambia": "MTN",
+        "Prima Reinsurance Plc (now Zambia Reinsurance Plc)": "PRIMA",
+        "Zambia Sugar": "ZAMSUG",
+        "Zambeef Products PLC": "ZAMBEEF",
+        "ZCCM Investments Holdings": "ZCCM",
+        "First Quantum Minerals": "FQM",
+        "Lafarge Zambia": "LAFARGE",
+        "Access Bank Zambia Limited": "ACCESS",
+        "Puma Energy Zambia Plc": "PUMA",
+        "Unitrans Zambia (KAP Limited division)": "UNITRANS",
+        "National Breweries Plc": "NATBREW",
     }
     return SHORT_MAP.get(name, name.split()[0].upper()[:6])
 
@@ -59,10 +74,26 @@ def make_short_name(name):
 def make_company_id(name):
     """Generate a stable ID from company name."""
     ID_MAP = {
-        "SCB Zambia": "SCB_ZAMBIA", "Zambia Breweries": "ZBL", "Copperbelt Energy": "CEC",
-        "Zambia National Bank": "ZANACO", "Airtel Zambia": "AIRTEL", "MTN Zambia": "MTN_ZAMBIA",
-        "Zambia Sugar": "ZAMSUG", "ZCCM Investments": "ZCCM",
-        "First Quantum Minerals": "FQM", "Lafarge Zambia": "LAFARGE",
+        "Standard Chartered Zambia": "SCB_ZAMBIA",
+        "Zambian Breweries": "ZBL",
+        "Copperbelt Energy Corporation": "CEC",
+        "First National Bank Zambia Limited": "FNB",
+        "Zanaco Bank": "ZANACO",
+        "Stanbic Bank Zambia Limited": "STANBIC",
+        "Shoprite Holdings Limited (Zambia operations)": "SHOPRITE",
+        "Absa Bank Zambia PLC": "ABSA",
+        "Airtel Zambia": "AIRTEL",
+        "MTN Zambia": "MTN_ZAMBIA",
+        "Prima Reinsurance Plc (now Zambia Reinsurance Plc)": "PRIMA",
+        "Zambia Sugar": "ZAMSUG",
+        "Zambeef Products PLC": "ZAMBEEF",
+        "ZCCM Investments Holdings": "ZCCM",
+        "First Quantum Minerals": "FQM",
+        "Lafarge Zambia": "LAFARGE",
+        "Access Bank Zambia Limited": "ACCESS",
+        "Puma Energy Zambia Plc": "PUMA",
+        "Unitrans Zambia (KAP Limited division)": "UNITRANS",
+        "National Breweries Plc": "NATBREW",
     }
     return ID_MAP.get(name, name.upper().replace(" ", "_"))
 
