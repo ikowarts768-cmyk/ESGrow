@@ -523,7 +523,7 @@ function HomePage({ nav }) {
 
           <p className="stagger-in" style={{marginTop:32,fontSize:"1rem",color:"#7a8fa8",
             lineHeight:1.8,maxWidth:420}}>
-            24 indicators. 10 companies. 7 sectors.<br/>
+            24 indicators. {cos.length} companies. {DATA.sectors.length} sectors.<br/>
             One score that tells the full story.
           </p>
 
@@ -794,7 +794,7 @@ function HomePage({ nav }) {
       <section style={{padding:"80px 0 80px 64px",background:"#080f1e",borderTop:"1px solid rgba(255,255,255,0.05)",overflow:"hidden"}}>
         <div style={{marginBottom:40,paddingRight:64}}>
           <Ey>Coverage</Ey>
-          <H2>7 sectors tracked.</H2>
+          <H2>{DATA.sectors.length} sectors tracked.</H2>
         </div>
         <div style={{display:"flex",gap:16,overflowX:"auto",paddingRight:64,paddingBottom:16}}>
           {DATA.sectors.map((s,i)=>{
@@ -1174,7 +1174,7 @@ function SectorsPage({ nav }) {
     <div style={{padding:"120px 64px 80px",maxWidth:1280,margin:"0 auto"}}>
       <Ey>Sector Overview</Ey>
       <H2>Performance across <em style={{fontStyle:"italic",color:"#2ecc8a"}}>sectors.</em></H2>
-      <p style={{fontSize:"0.98rem",color:"#7a8fa8",lineHeight:1.85,maxWidth:560,marginBottom:48}}>Compare ESG averages and top performers across all 7 sectors in the Zambia dataset.</p>
+      <p style={{fontSize:"0.98rem",color:"#7a8fa8",lineHeight:1.85,maxWidth:560,marginBottom:48}}>Compare ESG averages and top performers across all {DATA.sectors.length} sectors in the Zambia dataset.</p>
 
       {/* Heat map */}
       <Card style={{padding:"28px",marginBottom:36}}>
