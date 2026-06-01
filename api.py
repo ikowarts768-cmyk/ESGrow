@@ -7,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from sqlalchemy.orm import Session
 import os
 
@@ -155,8 +155,14 @@ def build_template_context(request: Request, db: Session) -> dict:
 
 
 @app.get("/", response_class=HTMLResponse)
-def dashboard(request: Request, db: Session = Depends(get_db)):
-    """Render the full ESGrow landing page — all data injected by Python."""
+def dashboard():
+    """Serve the new React-based ESGrow frontend."""
+    return FileResponse(os.path.join(BASE_DIR, "static", "index.html"))
+
+
+@app.get("/legacy", response_class=HTMLResponse)
+def legacy_dashboard(request: Request, db: Session = Depends(get_db)):
+    """Legacy server-rendered landing page (kept for reference)."""
     ctx = build_template_context(request, db)
     return templates.TemplateResponse(name="index.html", request=request, context=ctx)
 
@@ -240,5 +246,6 @@ def get_summary(db: Session = Depends(get_db)):
     }
 
 
-# Static files — mounted AFTER routes so / doesn't get overridden
-app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
+# Static files — serve fonts, logo, and other assets from /static/
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static_assets")
