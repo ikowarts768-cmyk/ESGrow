@@ -11,6 +11,9 @@ from fastapi.responses import HTMLResponse, FileResponse
 from sqlalchemy.orm import Session
 import os
 
+import csv
+from contextlib import asynccontextmanager
+
 from database import SessionLocal, init_db
 from models import Company, Sector, Score, IndicatorScore, IndicatorDefinition
 import engine
@@ -19,10 +22,126 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-# Ensure tables exist on startup
+# ── Indicator definitions (name + weight) ─────────────────
+INDICATOR_DEFS = {
+    "E01": ("Carbon Emissions Intensity", 0.20),
+    "E02": ("Renewable Energy Usage", 0.18),
+    "E03": ("Water Stewardship", 0.15),
+    "E04": ("Waste Management & Circularity", 0.14),
+    "E05": ("Biodiversity & Land Use", 0.13),
+    "E06": ("Environmental Compliance", 0.12),
+    "E07": ("Green Products / Services", 0.05),
+    "E08": ("Climate Risk Disclosure", 0.03),
+    "S01": ("Workforce Health & Safety", 0.22),
+    "S02": ("Diversity & Inclusion", 0.18),
+    "S03": ("Labour Standards", 0.14),
+    "S04": ("Employee Development", 0.14),
+    "S05": ("Community Investment", 0.12),
+    "S06": ("Customer Welfare", 0.10),
+    "S07": ("Supply Chain Standards", 0.06),
+    "S08": ("Human Rights", 0.04),
+    "G01": ("Board Independence", 0.22),
+    "G02": ("Audit & Risk Oversight", 0.18),
+    "G03": ("Executive Compensation", 0.17),
+    "G04": ("Shareholder Rights", 0.14),
+    "G05": ("Ethics & Anti-Corruption", 0.13),
+    "G06": ("Regulatory Compliance", 0.08),
+    "G07": ("ESG Integration in Strategy", 0.05),
+    "G08": ("Transparency & Reporting", 0.03),
+}
+
+SECTOR_WEIGHTS = {
+    "Mining":         {"E": 0.50, "S": 0.30, "G": 0.20},
+    "Banking":        {"E": 0.15, "S": 0.35, "G": 0.50},
+    "Energy":         {"E": 0.42, "S": 0.33, "G": 0.25},
+    "Agriculture":    {"E": 0.42, "S": 0.33, "G": 0.25},
+    "Telecoms":       {"E": 0.15, "S": 0.40, "G": 0.45},
+    "Consumer Goods": {"E": 0.22, "S": 0.38, "G": 0.40},
+    "Manufacturing":  {"E": 0.45, "S": 0.30, "G": 0.25},
+}
+
+
+def auto_seed():
+    """If the database is empty, seed it from data/seed_all.csv."""
+    db = SessionLocal()
+    try:
+        if db.query(Company).count() > 0:
+            return
+
+        csv_path = os.path.join(BASE_DIR, "data", "seed_all.csv")
+        if not os.path.exists(csv_path):
+            print("[auto_seed] No seed_all.csv found, skipping.")
+            return
+
+        print("[auto_seed] Empty database detected — seeding from CSV...")
+
+        # 1. Seed sectors
+        for name, weights in SECTOR_WEIGHTS.items():
+            if not db.query(Sector).filter_by(name=name).first():
+                db.add(Sector(name=name, weight_e=weights["E"],
+                              weight_s=weights["S"], weight_g=weights["G"]))
+        db.commit()
+
+        # 2. Seed indicator definitions
+        for ind_id, (ind_name, weight) in INDICATOR_DEFS.items():
+            if not db.query(IndicatorDefinition).filter_by(id=ind_id).first():
+                db.add(IndicatorDefinition(
+                    id=ind_id, pillar=ind_id[0], name=ind_name,
+                    weight=weight, sort_order=int(ind_id[1:]),
+                ))
+        db.commit()
+
+        # 3. Import companies + indicator scores from CSV
+        with open(csv_path, "r", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                code = row["code"].strip()
+                sector = db.query(Sector).filter_by(name=row["sector"].strip()).first()
+                if not sector:
+                    continue
+
+                company = Company(
+                    name=code,
+                    display_name=row["display_name"].strip(),
+                    sector_id=sector.id,
+                    is_active=True,
+                )
+                db.add(company)
+                db.flush()
+
+                ind_ids = ([f"E{i:02d}" for i in range(1, 9)]
+                           + [f"S{i:02d}" for i in range(1, 9)]
+                           + [f"G{i:02d}" for i in range(1, 9)])
+                for ind_id in ind_ids:
+                    val = row.get(ind_id, "").strip()
+                    if val:
+                        db.add(IndicatorScore(
+                            company_id=company.id,
+                            indicator_id=ind_id,
+                            score=float(val),
+                            source=row.get("report_source", ""),
+                        ))
+        db.commit()
+
+        # 4. Calculate scores
+        engine.run_scoring(db)
+        print(f"[auto_seed] Done — {db.query(Company).count()} companies loaded.")
+
+    finally:
+        db.close()
+
+
+@asynccontextmanager
+async def lifespan(app):
+    init_db()
+    auto_seed()
+    yield
+
+
+# Ensure tables exist on startup (also called in lifespan, but kept for local dev)
 init_db()
 
-app = FastAPI(title="ESGrow API", version="2.0")
+app = FastAPI(title="ESGrow API", version="2.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
