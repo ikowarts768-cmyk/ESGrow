@@ -131,9 +131,27 @@ def auto_seed():
         db.close()
 
 
+def run_migrations():
+    """Add new columns to existing tables (safe to run multiple times)."""
+    from sqlalchemy import text
+    from database import engine as db_engine
+    migrations = [
+        "ALTER TABLE indicator_scores ADD COLUMN report_year INTEGER",
+        "ALTER TABLE indicator_scores ADD COLUMN updated_at TIMESTAMP",
+    ]
+    with db_engine.connect() as conn:
+        for sql in migrations:
+            try:
+                conn.execute(text(sql))
+                conn.commit()
+            except Exception:
+                pass
+
+
 @asynccontextmanager
 async def lifespan(app):
     init_db()
+    run_migrations()
     auto_seed()
     yield
 
