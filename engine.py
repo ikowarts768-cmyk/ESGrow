@@ -82,8 +82,9 @@ def calculate_esg_score(company_data, sector_weights=None):
 
 # ── Database scoring ────────────────────────────────────────
 
-def run_scoring(session):
+def run_scoring(session, report_year=None, notes=None):
     """Calculate scores for all active companies from DB data.
+    Also snapshots each result into ScoreHistory for trend tracking.
     Returns sorted list of result dicts."""
     from models import Company, Sector, IndicatorScore, Score, ScoreHistory
 
@@ -119,6 +120,16 @@ def run_scoring(session):
                 final_score=score["Final"], band=score["Band"],
                 calculated_at=now,
             ))
+
+        # Snapshot into score_history for trend tracking
+        session.add(ScoreHistory(
+            company_id=company.id,
+            e_score=score["E"], s_score=score["S"], g_score=score["G"],
+            final_score=score["Final"], band=score["Band"],
+            calculated_at=now,
+            report_year=report_year,
+            notes=notes,
+        ))
 
         results.append({
             "Company": company.name,
