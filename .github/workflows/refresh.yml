@@ -11,25 +11,20 @@ on:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Wake up Render (free tier spins down)
+        run: |
+          echo "Waking up the server..."
+          curl -s -o /dev/null -w "%{http_code}" https://esgrow-rpuy.onrender.com/api/summary || true
+          sleep 60
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run ESGrow pipeline
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python pipeline.py
-
-      - name: Show results
-        run: cat data/output.json | python -m json.tool | head -50
+      - name: Trigger full pipeline via API
+        run: |
+          echo "Triggering score refresh pipeline..."
+          RESPONSE=$(curl -s -X POST "https://esgrow-rpuy.onrender.com/api/refresh?quick=false" \
+            -H "Content-Type: application/json" \
+            --max-time 300)
+          echo "$RESPONSE"
+          echo "$RESPONSE" | python3 -m json.tool || true
