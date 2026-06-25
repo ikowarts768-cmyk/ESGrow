@@ -993,6 +993,121 @@ function LeaderboardPage({ nav, search }) {
 // ═══════════════════════════════════════════════════
 // COMPANY PAGE
 // ═══════════════════════════════════════════════════
+function ScoreHistorySection({ companyCode, companyName }) {
+  const [history, setHistory] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetch(`/api/company/${companyCode}/history`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { setHistory(data); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [companyCode]);
+
+  if (loading) return (
+    <section style={{padding:"72px 64px",borderTop:"1px solid rgba(255,255,255,0.07)"}}>
+      <div style={{maxWidth:1280,margin:"0 auto",textAlign:"center",color:"#7a8fa8",fontFamily:"'Cascadia Code',monospace",fontSize:"0.72rem"}}>Loading score history...</div>
+    </section>
+  );
+
+  if (!history || !history.history || history.history.length < 2) return (
+    <section style={{padding:"72px 64px",borderTop:"1px solid rgba(255,255,255,0.07)"}}>
+      <div style={{maxWidth:1280,margin:"0 auto"}}>
+        <Ey>Score History</Ey>
+        <H2>Trends over time.</H2>
+        <Card style={{padding:"48px",textAlign:"center"}}>
+          <div style={{fontFamily:"'Cascadia Code',monospace",fontSize:"0.72rem",color:"#7a8fa8"}}>Score history will appear after the next annual update.</div>
+          <div style={{fontFamily:"'Cascadia Code',monospace",fontSize:"0.6rem",color:"rgba(122,143,168,0.5)",marginTop:8}}>The pipeline checks for new reports monthly.</div>
+        </Card>
+      </div>
+    </section>
+  );
+
+  const pts = history.history;
+  const scores = pts.map(p => p.final_score);
+  const minS = Math.min(...scores, ...pts.map(p=>p.e_score), ...pts.map(p=>p.s_score), ...pts.map(p=>p.g_score));
+  const maxS = Math.max(...scores, ...pts.map(p=>p.e_score), ...pts.map(p=>p.s_score), ...pts.map(p=>p.g_score));
+  const pad = 10;
+  const lo = Math.max(0, Math.floor(minS/10)*10 - pad);
+  const hi = Math.min(100, Math.ceil(maxS/10)*10 + pad);
+
+  const W=640, H=280, PL=48, PR=24, PT=20, PB=36;
+  const cw=W-PL-PR, ch=H-PT-PB;
+  const xStep = pts.length>1 ? cw/(pts.length-1) : cw;
+  const yScale = v => PT + ch - ((v-lo)/(hi-lo))*ch;
+  const xPos = i => PL + i*xStep;
+
+  const makeLine = (key, color) => {
+    const d = pts.map((p,i) => `${i===0?"M":"L"}${xPos(i)} ${yScale(p[key])}`).join(" ");
+    return <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>;
+  };
+
+  const lines = [
+    {key:"final_score",color:"#2ecc8a",label:"Final"},
+    {key:"e_score",color:"#3498db",label:"E"},
+    {key:"s_score",color:"#e67e22",label:"S"},
+    {key:"g_score",color:"#9b59b6",label:"G"},
+  ];
+
+  return (
+    <section style={{padding:"72px 64px",borderTop:"1px solid rgba(255,255,255,0.07)"}}>
+      <div style={{maxWidth:1280,margin:"0 auto"}}>
+        <Ey>Score History</Ey>
+        <H2>Trends over time.</H2>
+        <Card style={{padding:"32px"}}>
+          <div style={{display:"flex",gap:20,marginBottom:20,justifyContent:"center"}}>
+            {lines.map(l=>(
+              <div key={l.key} style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:16,height:3,background:l.color,borderRadius:2}}/>
+                <span style={{fontFamily:"'Cascadia Code',monospace",fontSize:"0.58rem",letterSpacing:"0.1em",color:"#7a8fa8",textTransform:"uppercase"}}>{l.label}</span>
+              </div>
+            ))}
+          </div>
+          <svg viewBox={`0 0 ${W} ${H}`} style={{width:"100%",maxWidth:640}}>
+            {[lo, lo+Math.round((hi-lo)/3), lo+Math.round(2*(hi-lo)/3), hi].map(v=>(
+              <g key={v}>
+                <line x1={PL} y1={yScale(v)} x2={W-PR} y2={yScale(v)} stroke="rgba(255,255,255,0.06)" strokeWidth="1"/>
+                <text x={PL-8} y={yScale(v)+4} textAnchor="end" fill="#7a8fa8" fontSize="9" fontFamily="'Cascadia Code',monospace">{v}</text>
+              </g>
+            ))}
+            {pts.map((p,i)=>(
+              <text key={i} x={xPos(i)} y={H-8} textAnchor="middle" fill="#7a8fa8" fontSize="9" fontFamily="'Cascadia Code',monospace">{p.report_year||"—"}</text>
+            ))}
+            {lines.map(l=>(<g key={l.key}>{makeLine(l.key, l.color)}</g>))}
+            {lines.map(l=>pts.map((p,i)=>(
+              <circle key={`${l.key}-${i}`} cx={xPos(i)} cy={yScale(p[l.key])} r="3.5" fill={l.color} stroke="#050d1a" strokeWidth="1.5"/>
+            )))}
+          </svg>
+        </Card>
+        <Card style={{marginTop:20,overflow:"hidden"}}>
+          <table style={{width:"100%",borderCollapse:"collapse"}}>
+            <thead>
+              <tr style={{borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
+                {["Year","E","S","G","Final","Band","Date"].map(h=>(
+                  <th key={h} style={{fontFamily:"'Cascadia Code',monospace",fontSize:"0.6rem",letterSpacing:"0.14em",color:"#7a8fa8",textTransform:"uppercase",padding:"0 12px 14px",fontWeight:400,textAlign:h==="Date"?"right":"left"}}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {pts.slice().reverse().map((h,idx)=>(
+                <tr key={idx} style={{borderBottom:idx<pts.length-1?"1px solid rgba(255,255,255,0.06)":"none"}}>
+                  <td style={{padding:"13px 12px",fontFamily:"'Cascadia Code',monospace",fontSize:"0.72rem",color:"#2ecc8a"}}>{h.report_year||"—"}</td>
+                  <td style={{padding:"13px 12px",fontSize:"0.85rem"}}>{h.e_score}</td>
+                  <td style={{padding:"13px 12px",fontSize:"0.85rem"}}>{h.s_score}</td>
+                  <td style={{padding:"13px 12px",fontSize:"0.85rem"}}>{h.g_score}</td>
+                  <td style={{padding:"13px 12px",fontWeight:700,fontSize:"0.92rem"}}>{h.final_score}</td>
+                  <td style={{padding:"13px 12px"}}><Badge band={h.band} sm/></td>
+                  <td style={{padding:"13px 12px",textAlign:"right",fontFamily:"'Cascadia Code',monospace",fontSize:"0.6rem",color:"#7a8fa8"}}>{h.calculated_at ? new Date(h.calculated_at).toLocaleDateString() : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      </div>
+    </section>
+  );
+}
+
 function CompanyPage({ companyId, nav }) {
   const { setPage, setCompany } = nav;
   const company = DATA.companies.find(c=>c.id===companyId);
@@ -1133,6 +1248,9 @@ function CompanyPage({ companyId, nav }) {
           </div>
         </section>
       ))}
+
+      {/* SCORE HISTORY / TRENDS */}
+      <ScoreHistorySection companyCode={company.id} companyName={company.name}/>
 
       {/* Back row */}
       <div style={{padding:"44px 64px",background:"#0a1628",borderTop:"1px solid rgba(255,255,255,0.07)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:14}}>

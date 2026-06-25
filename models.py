@@ -69,6 +69,8 @@ class IndicatorScore(Base):
     raw_value = Column(Text, nullable=True)
     unit = Column(String(50), nullable=True)
     source = Column(String(200), nullable=True)
+    report_year = Column(Integer, nullable=True)
+    updated_at = Column(DateTime, default=utcnow)
 
     company = relationship("Company", back_populates="indicator_scores")
     indicator = relationship("IndicatorDefinition", back_populates="scores")
@@ -104,3 +106,19 @@ class ScoreHistory(Base):
     notes = Column(Text, nullable=True)
 
     company = relationship("Company", back_populates="score_history")
+
+
+class FetchLog(Base):
+    """Tracks which reports have been scraped and processed."""
+    __tablename__ = "fetch_log"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    company_id = Column(Integer, ForeignKey("companies.id"), nullable=False)
+    report_year = Column(Integer, nullable=True)
+    source_url = Column(Text, nullable=True)
+    file_hash = Column(String(64), nullable=True)
+    status = Column(String(20), nullable=False, default="scraped")
+    fetched_at = Column(DateTime, default=utcnow)
+    notes = Column(Text, nullable=True)
+
+    company = relationship("Company")

@@ -15,7 +15,7 @@ import csv
 from contextlib import asynccontextmanager
 
 from database import SessionLocal, init_db
-from models import Company, Sector, Score, IndicatorScore, IndicatorDefinition
+from models import Company, Sector, Score, IndicatorScore, IndicatorDefinition, ScoreHistory, FetchLog
 import engine
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -146,7 +146,7 @@ app = FastAPI(title="ESGrow API", version="2.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET"],
+    allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
 
@@ -477,10 +477,97 @@ def get_dashboard_data(db: Session = Depends(get_db)):
 
 
 @app.post("/api/refresh")
-def refresh_scores(db: Session = Depends(get_db)):
-    results = engine.run_scoring(db)
-    engine.export_json(results)
-    return {"status": "ok", "message": "Scores refreshed successfully."}
+def refresh_scores(db: Session = Depends(get_db), quick: bool = True):
+    """Refresh ESG scores. Use ?quick=false to run full pipeline (scrape + AI score)."""
+    if quick:
+        results = engine.run_scoring(db, notes="Manual refresh")
+        engine.export_json(results)
+        return {"status": "ok", "message": "Scores recalculated successfully."}
+    else:
+        import pipeline
+        summary = pipeline.run_pipeline(db, quick=False)
+        return {"status": "ok", "summary": summary}
+
+
+@app.get("/api/company/{name}/history")
+def get_company_history(name: str, db: Session = Depends(get_db)):
+    """Return score history for a company — used for trend charts."""
+    company = (
+        db.query(Company)
+        .filter(Company.name.ilike(name))
+        .filter(Company.is_active == True)
+        .first()
+    )
+    if not company:
+        company = next(
+            (c for c in db.query(Company).filter(Company.is_active == True).all()
+             if (c.display_name or c.name).lower() == name.lower()
+             or make_company_id(c.display_name or c.name) == name),
+            None,
+        )
+    if not company:
+        raise HTTPException(status_code=404, detail=f"Company '{name}' not found.")
+
+    history = (
+        db.query(ScoreHistory)
+        .filter_by(company_id=company.id)
+        .order_by(ScoreHistory.report_year.asc(), ScoreHistory.calculated_at.asc())
+        .all()
+    )
+
+    return {
+        "company": company.display_name or company.name,
+        "code": company.name,
+        "history": [
+            {
+                "report_year": h.report_year,
+                "e_score": h.e_score,
+                "s_score": h.s_score,
+                "g_score": h.g_score,
+                "final_score": h.final_score,
+                "band": h.band,
+                "calculated_at": h.calculated_at.isoformat() if h.calculated_at else None,
+                "notes": h.notes,
+            }
+            for h in history
+        ],
+    }
+
+
+@app.get("/api/pipeline/status")
+def get_pipeline_status(db: Session = Depends(get_db)):
+    """Return the status of the data pipeline — latest fetch per company."""
+    from sqlalchemy import func
+
+    latest_fetch = (
+        db.query(FetchLog)
+        .order_by(FetchLog.fetched_at.desc())
+        .first()
+    )
+
+    companies = (
+        db.query(
+            Company.name,
+            func.max(FetchLog.fetched_at).label("last_fetched"),
+            FetchLog.status,
+        )
+        .outerjoin(FetchLog, Company.id == FetchLog.company_id)
+        .filter(Company.is_active == True)
+        .group_by(Company.name, FetchLog.status)
+        .all()
+    )
+
+    return {
+        "last_run": latest_fetch.fetched_at.isoformat() if latest_fetch else None,
+        "companies": [
+            {
+                "code": c.name,
+                "last_fetched": c.last_fetched.isoformat() if c.last_fetched else None,
+                "status": c.status or "never_fetched",
+            }
+            for c in companies
+        ],
+    }
 
 
 @app.get("/api/summary")
